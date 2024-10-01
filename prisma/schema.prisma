@@ -1,0 +1,76 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model University {
+  id        String   @id @default(uuid()) @db.Uuid
+  nome      String
+  Course    Course[]
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("universidades")
+}
+
+model Course {
+  id             String      @id @default(uuid()) @db.Uuid
+  nome           String
+  universidadeId String      @db.Uuid
+  university     University  @relation(fields: [universidadeId], references: [id])
+  Documents      Documents[]
+  createdAt      DateTime    @default(now())
+  updatedAt      DateTime    @updatedAt
+
+  @@map("cursos")
+}
+
+model Documents {
+  id             String   @id @default(uuid()) @db.Uuid
+  titulo         String
+  discente       String
+  orientador     String
+  resumo         String
+  palavras_chave Json[]
+  data_defesa    Int
+  cursoId        String   @db.Uuid
+  curso          Course   @relation(fields: [cursoId], references: [id])
+  Topics         Topics[]
+  arquivo        Files    @relation(fields: [fileId], references: [id])
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+  fileId         String   @unique @db.Uuid
+
+  @@map("documentos")
+}
+
+model Topics {
+  id        String      @id @default(uuid()) @db.Uuid
+  nome      String
+  Documents Documents[]
+  createdAt DateTime    @default(now())
+  updatedAt DateTime    @updatedAt
+
+  @@map("topicos")
+}
+
+model Files {
+  id        String     @id @default(uuid()) @db.Uuid
+  url       String
+  nome      String
+  createdAt DateTime   @default(now())
+  updatedAt DateTime   @updatedAt
+  Documents Documents?
+
+  @@map("arquivos")
+}
