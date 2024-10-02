@@ -18,14 +18,16 @@ FROM base as build
 
 # Install packages needed to build node modules
 RUN apt-get update -qq && \
-    apt-get install -y python-is-python3 pkg-config build-essential openssl 
+    apt-get install -y python-is-python3 pkg-config build-essential openssl
 
 # Install node modules
 COPY --link package.json .
 RUN npm install --production=false
 
+# Copie o diretório prisma explicitamente
+COPY --link prisma ./prisma
+
 # Generate Prisma Client
-COPY --link prisma .
 RUN npx prisma generate
 
 # Copy application code
