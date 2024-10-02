@@ -5,8 +5,9 @@ import { z } from "zod";
 import { modelTopics } from "../providers/AI/topicModeling";
 import { getFullPdf } from "../providers/pdf/pdfjs";
 import { extractMetadata } from "../providers/AI/extractMetadata";
-import { confirmDocumentUploadRequest, documentUploadRequest } from "../schemas/documents";
+import { confirmDocumentUploadRequest, documentUploadRequest, searchDocumentsRequest } from "../schemas/documents";
 import { uploadFile } from "../providers/bucket/s3";
+import { searchTopics } from "../providers/AI/searchTopics";
 const app = new Hono<{
   Bindings: {
     DATABASE_URL: string
@@ -16,7 +17,16 @@ const app = new Hono<{
 app.post('/', zValidator('form', documentUploadRequest),async (c) => {
   const {file, courseId} = c.req.valid('form')
   const pdfArrayBuffer = await file.arrayBuffer()
-  const fileId = await uploadFile(Buffer.from(pdfArrayBuffer),file.name);
+  const existingFile = await prisma.files.findFirst({
+    where: {
+      nome: file.name
+    }
+  })
+  let fileId: string | undefined = existingFile?.id
+
+  if(!fileId){
+    fileId = await uploadFile(Buffer.from(pdfArrayBuffer),file.name);
+  }
 
   const fullText = await getFullPdf(pdfArrayBuffer)
 
@@ -27,7 +37,7 @@ app.post('/', zValidator('form', documentUploadRequest),async (c) => {
   })
 
   const metadata = await extractMetadata(fullText)
-  const topicos = await modelTopics(metadata.resumo)
+  const {topicos} = await modelTopics(metadata.resumo)
 
 
   if(!course){
@@ -40,8 +50,9 @@ app.post('/', zValidator('form', documentUploadRequest),async (c) => {
 
   return c.json({
     metadata,
-    topics: topicos,
-    fileId
+    topicos,
+    fileId,
+    cursoId: course.id
   })
 
 })
@@ -83,5 +94,36 @@ app.post("/confirm-upload", zValidator('json', confirmDocumentUploadRequest), as
 
   return c.json({ success: true, document: createdDocument });
 });
+
+app.get("/search", zValidator('query', searchDocumentsRequest), async (c) => {
+  const { search } = c.req.valid("query")
+  const topics = await prisma.topics.findMany({
+    select: {
+      nome: true
+    }
+  })
+
+  const textTopics = await searchTopics(search, topics.map(t => t.nome))
+  const documentsWithTopics = await prisma.documents.findMany({
+    where: {
+      Topics: {
+        some: {
+          nome: {
+            in: textTopics
+          }
+        }
+      }
+    },
+    include: {
+      Topics: true,
+      arquivo: true
+    }
+  })
+
+  return c.json({
+    documents: documentsWithTopics
+  })
+
+})
 
 export default app

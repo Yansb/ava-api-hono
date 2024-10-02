@@ -7,17 +7,15 @@ import { PrismaClient } from "@prisma/client";
 import { prisma } from "../../db";
 
 const taggingPrompt = ChatPromptTemplate.fromTemplate(
-  `Extrai a informação desejada do seguinte texto.
-
-Só extraia as propriedades mencionadas na função 'Classification'.
-
+  `Relaciona o texto aos tópicos cadastrados no sistema ou cadastra novos tópicos relacionados ao texto.
 
 Texto:
 {input}
 
 
-Alguns topicos que ja temos no sistema são:
-{topicos}
+Estes são os tópicos já cadastrados no sistema, pode utilizar eles para temas parecidos ou criar novos tópicos:
+{topicos}\n
+
 `
 );
 
@@ -37,7 +35,6 @@ const taggingChain = taggingPrompt.pipe(modelWithStructuredOutput);
 export const modelTopics = async (abstract: string): Promise<z.infer<typeof topicsSchema>> => {
   const topics = await prisma.topics.findMany()
   const topicos = topics.map(t => t.nome).join(', ')
-
   const result = await taggingChain.invoke({
     input: abstract,
     topicos

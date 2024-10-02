@@ -18,3 +18,7 @@ export const confirmDocumentUploadRequest = z.object({
   topicos: z.array(z.string()),
   cursoId: z.string().uuid()
 })
+
+export const searchDocumentsRequest = z.object({
+  search: z.string().min(1, 'A busca não pode ser vazia')
+})
