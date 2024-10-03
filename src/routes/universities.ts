@@ -1,5 +1,5 @@
 import { Hono } from "hono"
-import { prisma } from "../db"
+import { prisma } from "../db.js"
 
 const app = new Hono<{
   Bindings: {

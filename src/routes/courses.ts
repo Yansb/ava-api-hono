@@ -1,7 +1,7 @@
 import { Hono } from "hono"
 import { z } from "zod"
 import { zValidator } from "@hono/zod-validator"
-import { prisma } from "../db"
+import { prisma } from "../db.js"
 
 const app = new Hono<{
   Bindings: {

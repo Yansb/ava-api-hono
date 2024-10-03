@@ -10,6 +10,7 @@ export async function getFullPdf(pdfArrayBuffer: ArrayBuffer) {
       const page = await pdf.getPage(pageNum)
       const textContent = await page.getTextContent();
 
+      // @ts-ignore
       const pageText = textContent.items.map(item => item.str!).join(' ')
       text += pageText + "\n"
     }

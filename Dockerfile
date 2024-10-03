@@ -33,18 +33,20 @@ RUN npx prisma generate
 # Copy application code
 COPY --link . .
 
-# Remove development dependencies
-RUN npm prune --production
-
+RUN npm run build
 
 # Final stage for app image
-FROM base
+FROM base AS production
 
-# Copy built application
-COPY --from=build /app /app
+RUN apt-get update -y && apt-get install -y openssl
+COPY --from=build /app/dist /app
+COPY --from=build /app/docker-entrypoint /app/docker-entrypoint
+COPY --from=build /app/prisma /app/prisma
+COPY --from=build /app/node_modules /app/node_modules
+COPY --from=build /app/package.json /app/package.json
 
 # Entrypoint prepares the database.
 ENTRYPOINT ["/app/docker-entrypoint"]
 
 # Start the server by default, this can be overwritten at runtime
-CMD [ "npm", "run", "start" ]
+CMD [ "node", "/app/src/index.js" ]

@@ -1,6 +1,6 @@
 import { ChatPromptTemplate } from "@langchain/core/prompts";
 import { z } from "zod";
-import { model } from "./model";
+import { model } from "./model.js";
 
 
 const searchTopicsPrompt = ChatPromptTemplate.fromTemplate(

@@ -1,13 +1,13 @@
 import { Hono } from "hono";
-import { prisma } from "../db";
+import { prisma } from "../db.js";
 import { zValidator } from "@hono/zod-validator";
 import { z } from "zod";
-import { modelTopics } from "../providers/AI/topicModeling";
-import { getFullPdf } from "../providers/pdf/pdfjs";
-import { extractMetadata } from "../providers/AI/extractMetadata";
-import { confirmDocumentUploadRequest, documentUploadRequest, searchDocumentsRequest } from "../schemas/documents";
-import { uploadFile } from "../providers/bucket/s3";
-import { searchTopics } from "../providers/AI/searchTopics";
+import { confirmDocumentUploadRequest, documentUploadRequest, searchDocumentsRequest } from "../schemas/documents.js";
+import { uploadFile } from "../providers/bucket/s3.js";
+import { searchTopics } from "../providers/AI/searchTopics.js";
+import { getFullPdf } from "../providers/pdf/pdfjs.js";
+import { modelTopics } from "../providers/AI/topicModeling.js";
+import { extractMetadata } from "../providers/AI/extractMetadata.js";
 const app = new Hono<{
   Bindings: {
     DATABASE_URL: string

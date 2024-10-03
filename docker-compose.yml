@@ -7,3 +7,12 @@ services:
       - POSTGRES_DB=postgres
     ports:
       - "5432:5432"
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "8080:8080"
+    environment:
+      - DATABASE_URL=postgresql://postgres:postgres@db:5432/postgres
+      - NODE_ENV=production

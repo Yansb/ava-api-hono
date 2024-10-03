@@ -1,10 +1,7 @@
-import { HumanMessage, SystemMessage } from "@langchain/core/messages";
 import { ChatPromptTemplate } from "@langchain/core/prompts";
-import { ChatOpenAI, OpenAI } from "@langchain/openai";
 import { z } from "zod";
-import { model } from "./model";
-import { PrismaClient } from "@prisma/client";
-import { prisma } from "../../db";
+import { model } from "./model.js";
+import { prisma } from "../../db.js";
 
 const taggingPrompt = ChatPromptTemplate.fromTemplate(
   `Relaciona o texto aos tópicos cadastrados no sistema ou cadastra novos tópicos relacionados ao texto.
