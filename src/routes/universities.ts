@@ -1,15 +1,12 @@
-import { Hono } from "hono"
-import { prisma } from "../db.js"
+import { universities } from "@/db/schema";
+import { createRouter } from "@/providers/hono/createApp.js";
 
-const app = new Hono<{
-  Bindings: {
-    DATABASE_URL: string
-  }
-}>()
+const app = createRouter()
 
-app.get('/', async (c) => {
-  const universities = await prisma.university.findMany();
-  return c.json(universities);
+app.get('/universities', async (c) => {
+  const {db} = c.var
+  const response = await db.select().from(universities);
+  return c.json(response);
 })
 
 export default app;

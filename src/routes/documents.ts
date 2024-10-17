@@ -1,39 +1,33 @@
-import { Hono } from "hono";
-import { prisma } from "../db.js";
 import { zValidator } from "@hono/zod-validator";
-import { z } from "zod";
 import { confirmDocumentUploadRequest, documentUploadRequest, searchDocumentsRequest } from "../schemas/documents.js";
 import { uploadFile } from "../providers/bucket/s3.js";
 import { searchTopics } from "../providers/AI/searchTopics.js";
 import { getFullPdf } from "../providers/pdf/pdfjs.js";
 import { modelTopics } from "../providers/AI/topicModeling.js";
 import { extractMetadata } from "../providers/AI/extractMetadata.js";
-const app = new Hono<{
-  Bindings: {
-    DATABASE_URL: string
-  }
-}>()
+import { createRouter } from "@/providers/hono/createApp.js";
+import { eq } from "drizzle-orm";
+import { courses, files } from "@/db/schema.js";
+
+const app = createRouter()
 
 app.post('/', zValidator('form', documentUploadRequest),async (c) => {
+  const {db} = c.var
   const {file, courseId} = c.req.valid('form')
   const pdfArrayBuffer = await file.arrayBuffer()
-  const existingFile = await prisma.files.findFirst({
-    where: {
-      nome: file.name
-    }
+  const existingFile = await db.query.files.findFirst({
+    where: eq(files.nome, file.name)
   })
   let fileId: string | undefined = existingFile?.id
 
   if(!fileId){
-    fileId = await uploadFile(Buffer.from(pdfArrayBuffer),file.name);
+    fileId = await uploadFile(Buffer.from(pdfArrayBuffer),file.name, db);
   }
 
   const fullText = await getFullPdf(pdfArrayBuffer)
 
-  const course = await prisma.course.findFirst({
-    where: {
-      id: courseId
-    }
+  const course = await db.query.courses.findFirst({
+    where: eq(courses.id, courseId )
   })
 
   const metadata = await extractMetadata(fullText)

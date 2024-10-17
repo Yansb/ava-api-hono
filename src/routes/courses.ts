@@ -1,23 +1,21 @@
-import { Hono } from "hono"
 import { z } from "zod"
 import { zValidator } from "@hono/zod-validator"
-import { prisma } from "../db.js"
+import { createRouter } from "@/providers/hono/createApp.js"
+import { eq } from "drizzle-orm"
+import { courses, universities } from "@/db/schema.js"
 
-const app = new Hono<{
-  Bindings: {
-    DATABASE_URL: string
-  }
-}>()
+const app = createRouter()
 
-app.get('/:universityId', zValidator('param', z.object({
-  universityId: z.string().uuid()
+app.get('courses/:universityId', zValidator('param', z.object({
+  universityId: z.coerce.string().uuid()
 })), async (c) => {
+  const {db} = c.var
   const universityId = c.req.valid('param').universityId;
-  const courses = await prisma.course.findMany({
-    where: {
-      universidadeId: universityId
-    }
+
+  const foundCourses = await db.query.courses.findMany({
+    where: eq(courses.universidadeId, universityId),
   });
-  return c.json(courses);
+
+  return c.json(foundCourses);
 })
 export default app;

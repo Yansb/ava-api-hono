@@ -1,11 +1,13 @@
 import { PutObjectCommand, S3Client} from "@aws-sdk/client-s3"
-import { prisma } from "../../db.js"
+import { env } from "@/env.js"
+import {  NodePgDatabase } from "drizzle-orm/node-postgres"
+import * as schemas from "@/db/schema"
 
 const s3Client = new S3Client({
 region: "sa-east-1"
 })
 
-export async function uploadFile(file: Buffer,fileName:string){
+export async function uploadFile(file: Buffer,fileName:string, db: NodePgDatabase<typeof schemas>){
   const response = await s3Client.send(
     new PutObjectCommand({
       Bucket: "tcc-yan-uneb",
@@ -14,14 +16,12 @@ export async function uploadFile(file: Buffer,fileName:string){
     })
   )
 
-  const fileUrl = process.env.AWS_BUCKET_URI + encodeURIComponent(fileName)
+  const fileUrl = env.AWS_BUCKET_URI + encodeURIComponent(fileName)
 
-  const dbFile= await prisma.files.create({
-    data: {
-      nome: fileName,
-      url: fileUrl,
-    }
-  })
+  const [dbFile]= await db.insert(schemas.files).values({
+    nome: fileName,
+    url: fileUrl
+  }).returning()
 
   return dbFile.id
 }

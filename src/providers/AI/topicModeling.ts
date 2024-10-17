@@ -4,15 +4,14 @@ import { model } from "./model.js";
 import { prisma } from "../../db.js";
 
 const taggingPrompt = ChatPromptTemplate.fromTemplate(
-  `Relaciona o texto aos tópicos cadastrados no sistema ou cadastra novos tópicos relacionados ao texto.
+  `Relaciona o texto a tópicos cadastrados no sistema e gera novos tópicos caso nenhum se encaixe.
+
+Estes são os tópicos já cadastrados no sistema, só utilize os topicos que forem relevantes:
+{topicos}\n
+
 
 Texto:
 {input}
-
-
-Estes são os tópicos já cadastrados no sistema, pode utilizar eles para temas parecidos ou criar novos tópicos:
-{topicos}\n
-
 `
 );
 
