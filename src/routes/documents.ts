@@ -6,12 +6,12 @@ import { getFullPdf } from "../providers/pdf/pdfjs.js";
 import { modelTopics } from "../providers/AI/topicModeling.js";
 import { extractMetadata } from "../providers/AI/extractMetadata.js";
 import { createRouter } from "@/providers/hono/createApp.js";
-import { eq } from "drizzle-orm";
-import { courses, files } from "@/db/schema.js";
+import { eq, inArray } from "drizzle-orm";
+import { courses, documents, documentsTopics, files, topics } from "@/db/schema.js";
 
 const app = createRouter()
 
-app.post('/', zValidator('form', documentUploadRequest),async (c) => {
+app.post('/documents', zValidator('form', documentUploadRequest),async (c) => {
   const {db} = c.var
   const {file, courseId} = c.req.valid('form')
   const pdfArrayBuffer = await file.arrayBuffer()
@@ -31,7 +31,7 @@ app.post('/', zValidator('form', documentUploadRequest),async (c) => {
   })
 
   const metadata = await extractMetadata(fullText)
-  const {topicos} = await modelTopics(metadata.resumo)
+  const {topicos} = await modelTopics(metadata.resumo, db)
 
 
   if(!course){
@@ -51,66 +51,59 @@ app.post('/', zValidator('form', documentUploadRequest),async (c) => {
 
 })
 
-app.post("/confirm-upload", zValidator('json', confirmDocumentUploadRequest), async (c) => {
+app.post("/documents/confirm-upload", zValidator('json', confirmDocumentUploadRequest), async (c) => {
+  const {db} = c.var
   const { cursoId, fileId, discente, ano, orientador, palavrasChave, resumo, titulo, topicos } = c.req.valid("json")
 
+  const document = db.transaction(async tx => {
+    const existingTopics = await db.query.topics.findMany({
+      where: inArray(topics.nome, topicos)
+    });
+    const existingTopicNames = new Set(existingTopics.map(t => t.nome));
+    const newTopics = topicos.filter(t => !existingTopicNames.has(t));
 
-  const existingTopics = await prisma.topics.findMany({
-    where: {
-      nome: {
-        in: topicos
-      }
-    }
-  });
-
-  const existingTopicNames = new Set(existingTopics.map(t => t.nome));
-  const newTopics = topicos.filter(t => !existingTopicNames.has(t));
-
-  const createdDocument = await prisma.documents.create({
-    data: {
+    const [createdDocument] = await tx.insert(documents).values({
       cursoId,
-      fileId,
       discente,
-      data_defesa: ano,
+      ano_defesa: ano,
       orientador,
       resumo,
       titulo,
-      palavras_chave: palavrasChave,
-      Topics: {
-        connect: existingTopics.map(topic => ({ id: topic.id })),
-        create: newTopics.map(nome => ({ nome }))
-      }
-    },
-    include: {
-      Topics: true
-    }
-  });
+      palavrasChave: palavrasChave,
+      arquivoId: fileId,
+    }).returning()
 
-  return c.json({ success: true, document: createdDocument });
-});
+    const insertedTopics = await tx.insert(topics).values(newTopics.map(t => ({ nome: t }))).returning()
+    const topicsIds = [...existingTopics, ...insertedTopics].map(t => t.id)
 
-app.get("/search", zValidator('query', searchDocumentsRequest), async (c) => {
-  const { search } = c.req.valid("query")
-  const topics = await prisma.topics.findMany({
-    select: {
-      nome: true
-    }
+    await tx.insert(documentsTopics).values(topicsIds.map(id => ({
+      documentoId: createdDocument.id,
+      topicoId: id
+    })))
+    return createdDocument;
   })
 
-  const textTopics = await searchTopics(search, topics.map(t => t.nome))
-  const documentsWithTopics = await prisma.documents.findMany({
-    where: {
-      Topics: {
-        some: {
-          nome: {
-            in: textTopics
+
+  return c.json({ success: true, document });
+});
+
+app.get("/documents/search", zValidator('query', searchDocumentsRequest), async (c) => {
+  const {db} = c.var
+  const { search } = c.req.valid("query")
+  const topics = await db.query.topics.findMany()
+
+  const topicsIds = await searchTopics(search, topics.map(t => t.id))
+  const documentsWithTopics = await db.query.documentsTopics.findMany({
+    where: inArray(documentsTopics.topicoId, topicsIds),
+    with: {
+      documents: {
+        documents: {
+          with: {
+            arquivo: true,
           }
-        }
+        },
+        topics: true,
       }
-    },
-    include: {
-      Topics: true,
-      arquivo: true
     }
   })
 

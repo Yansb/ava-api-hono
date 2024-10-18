@@ -6,9 +6,9 @@ import { model } from "./model.js";
 const searchTopicsPrompt = ChatPromptTemplate.fromTemplate(
   `Lista quais tópicos de uma lista de tópicos são relevantes para um texto.
 
-  Mencione apenas os tópicos relevantes para o texto.
-  Não mencione tópicos que não estão na lista.
-  Caso o texto não tenha nenhum tópico que possa ser relevante na lista, retorne um array vazio.
+  Liste apenas os tópicos relevantes para o texto.
+  Não liste tópicos que não estão na lista.
+  Caso o texto não tenha nenhum tópico que possa ser relevante na lista, não retorne nenhum tópico.
 
   Lista de tópicos:
   {topics}\n

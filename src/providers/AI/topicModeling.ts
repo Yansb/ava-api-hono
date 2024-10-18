@@ -1,14 +1,15 @@
 import { ChatPromptTemplate } from "@langchain/core/prompts";
 import { z } from "zod";
 import { model } from "./model.js";
-import { prisma } from "../../db.js";
+import { DBType } from "@/db/types.js";
 
 const taggingPrompt = ChatPromptTemplate.fromTemplate(
-  `Relaciona o texto a tópicos cadastrados no sistema e gera novos tópicos caso nenhum se encaixe.
+  `Relaciona o texto a tópicos cadastrados no sistema, gerando novos tópicos caso nenhum dos já cadastrados seja relevante.
+  Utilize apenas tópicos cadastrados se eles forem altamente relevantes e adequados ao contexto do texto.
+  Se o tópico for apenas semelhante, mas não for claramente relevante, gere um novo.
 
-Estes são os tópicos já cadastrados no sistema, só utilize os topicos que forem relevantes:
+Estes são os tópicos já cadastrados no sistema, só utilize tópicos que forem claramente relevantes:
 {topicos}\n
-
 
 Texto:
 {input}
@@ -28,9 +29,11 @@ const modelWithStructuredOutput = model.withStructuredOutput(topicsSchema, {
 
 const taggingChain = taggingPrompt.pipe(modelWithStructuredOutput);
 
-export const modelTopics = async (abstract: string): Promise<z.infer<typeof topicsSchema>> => {
-  const topics = await prisma.topics.findMany()
+export const modelTopics = async (abstract: string, db: DBType): Promise<z.infer<typeof topicsSchema>> => {
+  const topics = await db.query.topics.findMany()
+
   const topicos = topics.map(t => t.nome).join(', ')
+
   const result = await taggingChain.invoke({
     input: abstract,
     topicos
