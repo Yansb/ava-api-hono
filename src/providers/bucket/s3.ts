@@ -1,7 +1,7 @@
 import { PutObjectCommand, S3Client} from "@aws-sdk/client-s3"
-import { env } from "@/env.js"
+import { env } from "../../env.js"
 import {  NodePgDatabase } from "drizzle-orm/node-postgres"
-import * as schemas from "@/db/schema"
+import * as schemas from "../../db/schema.js"
 
 const s3Client = new S3Client({
 region: "sa-east-1"

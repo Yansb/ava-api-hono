@@ -1,7 +1,7 @@
-import { createApp } from "./providers/hono/createApp";
-import coursesRouter from "./routes/courses";
-import universitiesRouter from "./routes/universities";
-import documentsRouter from "./routes/documents";
+import coursesRouter from "./routes/courses.js";
+import universitiesRouter from "./routes/universities.js";
+import documentsRouter from "./routes/documents.js";
+import { createApp } from "./providers/hono/createApp.js";
 const app = await createApp()
 
 const routes = [

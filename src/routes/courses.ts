@@ -1,8 +1,8 @@
 import { z } from "zod"
 import { zValidator } from "@hono/zod-validator"
-import { createRouter } from "@/providers/hono/createApp.js"
+import { createRouter } from "../providers/hono/createApp.js"
 import { eq } from "drizzle-orm"
-import { courses, universities } from "@/db/schema.js"
+import { courses } from "../db/schema.js"
 
 const app = createRouter()
 

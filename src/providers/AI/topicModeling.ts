@@ -1,7 +1,7 @@
 import { ChatPromptTemplate } from "@langchain/core/prompts";
 import { z } from "zod";
 import { model } from "./model.js";
-import { DBType } from "@/db/types.js";
+import { DBType } from "../../db/types.js";
 
 const taggingPrompt = ChatPromptTemplate.fromTemplate(
   `Relaciona o texto a tópicos cadastrados no sistema, gerando novos tópicos caso nenhum dos já cadastrados seja relevante.

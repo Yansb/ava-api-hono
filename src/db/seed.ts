@@ -1,7 +1,7 @@
 import { NodePgDatabase } from "drizzle-orm/node-postgres";
-import * as schema from "./schema"
+import * as schema from "./schema.js"
 import { eq } from "drizzle-orm";
-import { env } from "@/env";
+import { env } from "../env.js";
 export async function seed(db: NodePgDatabase<typeof schema>){
   let uneb = await db.query.universities.findFirst({
     where: eq(schema.universities.id, env.UNEB_UUID)

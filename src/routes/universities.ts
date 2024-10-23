@@ -1,5 +1,5 @@
-import { universities } from "@/db/schema";
-import { createRouter } from "@/providers/hono/createApp.js";
+import { universities } from "../db/schema.js";
+import { createRouter } from "../providers/hono/createApp.js";
 
 const app = createRouter()
 

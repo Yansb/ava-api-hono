@@ -5,9 +5,9 @@ import { searchTopics } from "../providers/AI/searchTopics.js";
 import { getFullPdf } from "../providers/pdf/pdfjs.js";
 import { modelTopics } from "../providers/AI/topicModeling.js";
 import { extractMetadata } from "../providers/AI/extractMetadata.js";
-import { createRouter } from "@/providers/hono/createApp.js";
 import { eq, inArray } from "drizzle-orm";
-import { courses, documents, documentsTopics, files, topics } from "@/db/schema.js";
+import { createRouter } from "../providers/hono/createApp.js";
+import { courses, documents, documentsTopics, files, topics } from "../db/schema.js";
 
 const app = createRouter()
 

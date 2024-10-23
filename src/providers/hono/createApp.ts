@@ -1,9 +1,9 @@
 import { Hono } from "hono";
-import { AppBindings } from "./types";
-import { createDB } from "@/db/index";
+import { AppBindings } from "./types.js";
 import { logger } from "hono/logger";
 import { cors } from "hono/cors";
-import { seed } from "@/db/seed";
+import { createDB } from "../../db/index.js";
+import { seed } from "../../db/seed.js";
 
 export function createRouter() {
   return new Hono<AppBindings>();
