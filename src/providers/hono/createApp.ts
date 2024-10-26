@@ -23,7 +23,7 @@ export async function createApp() {
   app.use(cors())
 
   app.get('/', async (c) => {
-    c.json({ health: true })
+    return c.json({ health: true })
   })
 
   await seed(db)
