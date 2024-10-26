@@ -4,23 +4,26 @@ import { model } from "./model.js";
 import { DBType } from "../../db/types.js";
 
 const taggingPrompt = ChatPromptTemplate.fromTemplate(
-  `Relaciona o texto a tópicos cadastrados no sistema, gerando novos tópicos caso nenhum dos já cadastrados seja relevante.
-  Utilize apenas tópicos cadastrados se eles forem altamente relevantes e adequados ao contexto do texto.
-  Se o tópico for apenas semelhante, mas não for claramente relevante, gere um novo.
+  `Relacione o texto a tópicos cadastrados no sistema ou crie novos tópicos se nenhum dos cadastrados for altamente relevante.
 
-Estes são os tópicos já cadastrados no sistema, só utilize tópicos que forem claramente relevantes:
-{topicos}\n
+  Regras:
+  - Utilize apenas tópicos cadastrados que sejam altamente específicos e pertinentes ao conteúdo técnico do texto, cobrindo diretamente as áreas de estudo ou tecnologia mencionadas.
+  - Se os tópicos cadastrados são apenas vagamente relacionados, gere novos tópicos que representem com precisão o conteúdo técnico do texto.
+  - Novos tópicos devem ser focados, de forma a capturar as principais áreas de conhecimento e metodologias do texto.
 
-Texto:
-{input}
-`
+  Tópicos cadastrados disponíveis:
+  {topicos}\n
+
+  Texto:
+  {input}
+  `
 );
 
 const topicsSchema = z.object({
   topicos: z.array(z.object({
-    topico: z.string().describe('Um tópico do texto. Um tópico deve ser composto por poucas palavras, como "Inteligência Artificial", "Machine Learning" ou "Jogos".'),
-    importancia: z.number().min(0).max(100).describe('A importância do tópico entre 0 e 100')
-  })).min(2).describe('Um texto deve ter no minimo dois tópicos'),
+    topico: z.string().describe('Um tópico conciso e diretamente ligado ao conteúdo técnico do texto, como "Cristais Fotônicos", "Algoritmos Genéticos", ou "Método dos Elementos Finitos".'),
+    importancia: z.number().min(0).max(100).describe('A relevância do tópico para o texto, em uma escala de 0 a 100')
+  })).min(2).describe('O texto deve conter pelo menos um tópico')
 })
 
 const modelWithStructuredOutput = model.withStructuredOutput(topicsSchema, {
