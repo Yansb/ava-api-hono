@@ -13,6 +13,7 @@ export async function createApp() {
   const app = new Hono<AppBindings>();
   const db = createDB()
 
+
   app.use(async (c, next) => {
     c.set('db', db)
     await next()
@@ -20,6 +21,10 @@ export async function createApp() {
 
   app.use(logger())
   app.use(cors())
+
+  app.get('/', async (c) => {
+    c.json({ health: true })
+  })
 
   await seed(db)
 

@@ -21,7 +21,7 @@ const dadosSchema = z.object({
   resumo: z.string().describe("Resumo do trabalho escrito pelo autor"),
   palavrasChave: z.array(z.string()).describe("Array com as palavras-chave definidas pelo autor do texto"),
   ano: z.number().describe("Ano em que foi publicada a monografia")
-}).describe("Metadados extraidos de uma monografia")
+}).describe("Metadados extraidos de uma monografia");
 
 const modelWithStructuredOutput = model.withStructuredOutput(dadosSchema, {
   name: 'dados'
