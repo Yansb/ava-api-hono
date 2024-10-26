@@ -19,7 +19,7 @@ const dadosSchema = z.object({
   discente: z.string().describe("Nome do aluno que foi o autor do trabalho"),
   orientador: z.string().describe("Nome do orientador responsavel por orientar o aluno pelo trabalho"),
   resumo: z.string().describe("Resumo do trabalho escrito pelo autor"),
-  palavrasChave: z.array(z.string()).describe("Array com as palavras-chave definidas pelo autor do texto"),
+  palavrasChave: z.array(z.string()).describe("Array com as palavras-chave definidas pelo autor do texto. Caso o autor não tenha definido palavras-chave deixe em branco"),
   ano: z.number().describe("Ano em que foi publicada a monografia")
 }).describe("Metadados extraidos de uma monografia");
 
