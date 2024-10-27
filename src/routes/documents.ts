@@ -18,11 +18,17 @@ app.post('/documents', zValidator('form', documentUploadRequest),async (c) => {
   const existingFile = await db.query.files.findFirst({
     where: eq(files.nome, file.name)
   })
-  let fileId: string | undefined = existingFile?.id
 
-  if(!fileId){
-    fileId = await uploadFile(Buffer.from(pdfArrayBuffer),file.name, db);
+  if(existingFile){
+    return c.json({
+      error: 'File already exists'
+    }, {
+      status: 409
+    })
   }
+
+
+  const fileId = await uploadFile(Buffer.from(pdfArrayBuffer),file.name, db);
 
   const fullText = await getFullPdf(pdfArrayBuffer)
 
