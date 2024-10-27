@@ -72,10 +72,14 @@ app.post("/documents/confirm-upload", zValidator('json', confirmDocumentUploadRe
       palavrasChave: palavrasChave,
       arquivoId: fileId,
     }).returning()
+    let insertedTopics: typeof existingTopics = []
 
-    const insertedTopics = await tx.insert(topics).values(newTopics.map(t => ({ nome: t }))).returning()
+    if(newTopics.length > 0){
+      insertedTopics = await tx.insert(topics).values(newTopics.map(t => ({ nome: t }))).returning()
+    }
+
     const topicsIds = [...existingTopics, ...insertedTopics]
-    console.log(topicsIds)
+    console.log({topicsIds})
     await tx.insert(documentsTopics).values(topicsIds.map(topic => ({
       documentoId: createdDocument.id,
       topicoId: topic.id
