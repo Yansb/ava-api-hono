@@ -55,7 +55,7 @@ app.post("/documents/confirm-upload", zValidator('json', confirmDocumentUploadRe
   const {db} = c.var
   const { cursoId, fileId, discente, ano, orientador, palavrasChave, resumo, titulo, topicos } = c.req.valid("json")
 
-  const document = db.transaction(async tx => {
+  const document = await db.transaction(async tx => {
     const existingTopics = await db.query.topics.findMany({
       where: inArray(topics.nome, topicos)
     });
@@ -79,7 +79,7 @@ app.post("/documents/confirm-upload", zValidator('json', confirmDocumentUploadRe
     }
 
     const topicsIds = [...existingTopics, ...insertedTopics]
-    console.log({topicsIds})
+
     await tx.insert(documentsTopics).values(topicsIds.map(topic => ({
       documentoId: createdDocument.id,
       topicoId: topic.id
