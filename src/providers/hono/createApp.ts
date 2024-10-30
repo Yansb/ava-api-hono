@@ -22,9 +22,6 @@ export async function createApp() {
   app.use(logger())
   app.use(cors())
 
-  app.get('/', async (c) => {
-    return c.json({ health: true })
-  })
 
   await seed(db)
 

@@ -9,6 +9,9 @@ const routes = [
   universitiesRouter,
   documentsRouter,
 ]
+app.get('/', async (c) => {
+  return c.json({ health: true })
+})
 routes.forEach((route) => {
   app.route("/", route)
 })

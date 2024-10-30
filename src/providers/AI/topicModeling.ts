@@ -23,7 +23,7 @@ const topicsSchema = z.object({
   topicos: z.array(z.object({
     topico: z.string().describe('Um tópico conciso e diretamente ligado ao conteúdo técnico do texto, como "Cristais Fotônicos", "Algoritmos Genéticos", ou "Método dos Elementos Finitos".'),
     importancia: z.number().min(0).max(100).describe('A relevância do tópico para o texto, em uma escala de 0 a 100')
-  })).min(2).describe('O texto deve conter pelo menos um tópico')
+  })).min(1).describe('O texto deve conter pelo menos um tópico')
 })
 
 const modelWithStructuredOutput = model.withStructuredOutput(topicsSchema, {
