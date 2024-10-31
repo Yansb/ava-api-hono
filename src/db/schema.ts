@@ -1,4 +1,4 @@
-import { sql } from "drizzle-orm";
+import { relations, sql } from "drizzle-orm";
 import { integer, jsonb, pgTable, primaryKey, timestamp, uuid, varchar } from "drizzle-orm/pg-core";
 import { z} from 'zod'
 
@@ -57,3 +57,26 @@ export const documentsTopics = pgTable('documentos_topics', {
 },(table) => ({
   pk: primaryKey({columns: [table.documentoId, table.topicoId]})
 }))
+
+export const documentsRelations = relations(documents, ({ many, one }) => ({
+  documentsToTopics: many(documentsTopics),
+  arquivos: one(files, {
+    fields: [documents.arquivoId],
+    references: [files.id]
+  })
+}));
+
+export const topicsRelations = relations(topics, ({ many }) => ({
+  documentsToTopics: many(documentsTopics)
+}));
+
+export const documentsTopicsRelations = relations(documentsTopics, ({ one }) => ({
+  document: one(documents, {
+    fields: [documentsTopics.documentoId],
+    references: [documents.id]
+  }),
+  topic: one(topics, {
+    fields: [documentsTopics.topicoId],
+    references: [topics.id]
+  })
+}));

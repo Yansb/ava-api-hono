@@ -98,29 +98,30 @@ app.post("/documents/confirm-upload", zValidator('json', confirmDocumentUploadRe
 });
 
 app.get("/documents/search", zValidator('query', searchDocumentsRequest), async (c) => {
-  const {db} = c.var
-  const { search } = c.req.valid("query")
-  const topics = await db.query.topics.findMany()
+  const { db } = c.var;
+  const { search } = c.req.valid("query");
+  const topics = await db.query.topics.findMany();
 
-  const topicsIds = await searchTopics(search, topics.map(t => t.id))
+  const topicsNames = await searchTopics(search, topics.map(t => t.nome));
+  const topicsIds = topics.filter(t => topicsNames.includes(t.nome)).map(t => t.id);
+
+  console.log(topicsIds)
+
   const documentsWithTopics = await db.query.documentsTopics.findMany({
     where: inArray(documentsTopics.topicoId, topicsIds),
     with: {
-      documents: {
-        documents: {
-          with: {
-            arquivo: true,
-          }
+      document: {
+        with: {
+          arquivos: true,
         },
-        topics: true,
-      }
-    }
-  })
+      },
+      topic: true,
+    },
+  });
 
   return c.json({
-    documents: documentsWithTopics
-  })
-
-})
+    documents: documentsWithTopics,
+  });
+});
 
 export default app

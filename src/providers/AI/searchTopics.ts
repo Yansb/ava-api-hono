@@ -4,13 +4,14 @@ import { model } from "./model.js";
 
 
 const searchTopicsPrompt = ChatPromptTemplate.fromTemplate(
-  `Lista quais tópicos de uma lista de tópicos são relevantes para um texto.
+  `Liste quais tópicos da lista a seguir são relevantes para o texto fornecido.
 
-  Liste apenas os tópicos relevantes para o texto.
-  Não liste tópicos que não estão na lista.
-  Caso o texto não tenha nenhum tópico que possa ser relevante na lista, não retorne nenhum tópico.
+  **Instruções rigorosas**:
+  - Retorne somente os tópicos da "Lista de Tópicos" que estejam claramente relacionados ao conteúdo do "Texto".
+  - Não crie nem adicione tópicos novos. Só retorne os que estão na "Lista de Tópicos".
+  - Se nenhum tópico da lista for relevante, devolva uma lista vazia sem inventar ou sugerir qualquer tópico.
 
-  Lista de tópicos:
+  Lista de Tópicos:
   {topics}\n
 
   Texto:
@@ -21,9 +22,9 @@ const searchTopicsPrompt = ChatPromptTemplate.fromTemplate(
 const dadosSchema = z.object({
   topicos: z.array(z.object({
     topico: z.string().describe('Um tópico presente na lista e relacionado ao texto'),
-    explicacao: z.string().describe('Uma explicação sobre o porque o tópico é relevante para o texto')
-  })).describe("Array com os tópicos relevantes ao texto, em conjunto com a explicação para escolha do tópico")
+  })).describe("Array com os tópicos relevantes ao texto")
 }).describe("Tópicos relevantes ao texto")
+
 
 const modelWithStructuredOutput = model.withStructuredOutput(dadosSchema, {
   name: 'dados'
