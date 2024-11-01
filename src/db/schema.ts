@@ -63,7 +63,7 @@ export const documentsRelations = relations(documents, ({ many, one }) => ({
   arquivos: one(files, {
     fields: [documents.arquivoId],
     references: [files.id]
-  })
+  }),
 }));
 
 export const topicsRelations = relations(topics, ({ many }) => ({

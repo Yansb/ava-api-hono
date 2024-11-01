@@ -33,8 +33,8 @@ importers:
         specifier: ^16.4.5
         version: 16.4.5
       drizzle-orm:
-        specifier: ^0.35.1
-        version: 0.35.1(@prisma/client@5.20.0(prisma@5.20.0))(@types/pg@8.11.10)(pg@8.13.0)(prisma@5.20.0)
+        specifier: ^0.36.0
+        version: 0.36.0(@prisma/client@5.20.0(prisma@5.20.0))(@types/pg@8.11.10)(pg@8.13.0)(prisma@5.20.0)
       hono:
         specifier: ^4.6.3
         version: 4.6.3
@@ -1116,13 +1116,14 @@ packages:
     resolution: {integrity: sha512-cMq8omEKywjIy5KcqUo6LvEFxkl8/zYHsgYjFVXjmPWWtuW4blcz+YW9+oIhoaALgs2ebRjzXwsJgN9i6P49Dw==}
     hasBin: true
 
-  drizzle-orm@0.35.1:
-    resolution: {integrity: sha512-HQxDdYuXlZFuvDPztlUIzrX8TqWa/Ej6uN6L0hkbuGL4slexOUMc3u4nXVU15RQ5QYbk+uLQnR6v1+OIrdCTXQ==}
+  drizzle-orm@0.36.0:
+    resolution: {integrity: sha512-6BETYPdKSR7cDHC0ZfqZk2VrKJ8n/Rfd3ajFPsAbc69gi87nwZ6oBA2wUGMELHA0tQE4kUKN0Ds00LUZQ6Z69A==}
     peerDependencies:
       '@aws-sdk/client-rds-data': '>=3'
       '@cloudflare/workers-types': '>=3'
-      '@electric-sql/pglite': '>=0.1.1'
+      '@electric-sql/pglite': '>=0.2.0'
       '@libsql/client': '>=0.10.0'
+      '@libsql/client-wasm': '>=0.10.0'
       '@neondatabase/serverless': '>=0.1'
       '@op-engineering/op-sqlite': '>=2'
       '@opentelemetry/api': ^1.4.1
@@ -1155,6 +1156,8 @@ packages:
       '@electric-sql/pglite':
         optional: true
       '@libsql/client':
+        optional: true
+      '@libsql/client-wasm':
         optional: true
       '@neondatabase/serverless':
         optional: true
@@ -3060,7 +3063,7 @@ snapshots:
     transitivePeerDependencies:
       - supports-color
 
-  drizzle-orm@0.35.1(@prisma/client@5.20.0(prisma@5.20.0))(@types/pg@8.11.10)(pg@8.13.0)(prisma@5.20.0):
+  drizzle-orm@0.36.0(@prisma/client@5.20.0(prisma@5.20.0))(@types/pg@8.11.10)(pg@8.13.0)(prisma@5.20.0):
     optionalDependencies:
       '@prisma/client': 5.20.0(prisma@5.20.0)
       '@types/pg': 8.11.10

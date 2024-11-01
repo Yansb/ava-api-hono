@@ -17,7 +17,7 @@
     "@langchain/openai": "^0.3.2",
     "assemblyai": "^4.7.0",
     "dotenv": "^16.4.5",
-    "drizzle-orm": "^0.35.1",
+    "drizzle-orm": "^0.36.0",
     "hono": "^4.6.3",
     "langchain": "^0.3.2",
     "pdfjs-dist": "^4.6.82",
