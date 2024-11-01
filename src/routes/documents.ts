@@ -123,6 +123,7 @@ app.get("/documents/search", zValidator('query', searchDocumentsRequest), async 
 
 
   return c.json({
+    topics: topicsNames,
     documents: documentsWithTopics,
   });
 });

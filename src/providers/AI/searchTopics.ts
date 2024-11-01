@@ -20,10 +20,9 @@ const searchTopicsPrompt = ChatPromptTemplate.fromTemplate(
 );
 
 const dadosSchema = z.object({
-  topicos: z.array(z.object({
-    topico: z.string().describe('Um tópico presente na lista e relacionado ao texto'),
-  })).describe("Array com os tópicos relevantes ao texto")
-}).describe("Tópicos relevantes ao texto")
+  topicos: z.array(
+   z.string().describe('Um tópico presente na lista e relacionado ao texto'))
+  }).describe("Array com os tópicos relevantes ao texto")
 
 
 const modelWithStructuredOutput = model.withStructuredOutput(dadosSchema, {
@@ -38,7 +37,6 @@ export const searchTopics = async (query: string, topics: string[]): Promise<str
     query,
     topics: topics.join(', ')
   })
-  console.log(topicos)
-  return topicos.map(t => t.topico)
 
+  return topicos
 }
