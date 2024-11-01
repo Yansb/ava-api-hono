@@ -21,12 +21,18 @@ export const confirmDocumentUploadRequest = z.object({
 
 export const searchDocumentsRequest = z.object({
   search: z.string().min(1, 'A busca não pode ser vazia').optional(),
-  topicsIds: z.array(z.string().uuid()).optional(),
+  topicsIds: z.array(z.string().uuid()).or(z.string().uuid()).transform((value) => {
+    if (Array.isArray(value)) {
+      return value
+    }
+    return [value]
+  }).optional()
 }).superRefine((value) => {
   if (!value.search && !value.topicsIds) {
     throw new Error('Expected at least one of search or topicsIds')
   }
 })
+
 export const searchDocumentsResponseTopics = z.array(z.object({
   id: z.string().uuid(),
   nome: z.string()
