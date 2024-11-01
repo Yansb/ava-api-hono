@@ -109,13 +109,19 @@ app.get("/documents/search", zValidator('query', searchDocumentsRequest), async 
       },
       where: inArray(topics.id, topicsIds)
     })
-  }else{
+  }else if(search){
     const registeredTopics = await db.query.topics.findMany();
 
     const selectedTopics = await searchTopics(search, registeredTopics.map(t => t.nome));
 
     topicsObject = registeredTopics.filter(t => selectedTopics.includes(t.nome));
     topicsIds = topicsObject.map(t => t.id);
+  }else{
+    return c.json({
+      error: 'Expected at least one of search or topicsIds'
+    }, {
+      status: 400
+    })
   }
 
   const documentsWithTopics = await db
