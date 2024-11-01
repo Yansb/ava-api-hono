@@ -1,5 +1,5 @@
 import { relations, sql } from "drizzle-orm";
-import { integer, jsonb, pgTable, primaryKey, timestamp, uuid, varchar } from "drizzle-orm/pg-core";
+import { index, integer, jsonb, pgTable, primaryKey, timestamp, uuid, varchar } from "drizzle-orm/pg-core";
 import { z} from 'zod'
 
 export const universities = pgTable('universidades', {
@@ -47,7 +47,9 @@ export const topics = pgTable('topicos', {
   nome: varchar().notNull(),
   createdAt: timestamp().notNull().defaultNow(),
   updatedAt: timestamp().notNull().defaultNow().$onUpdate(() => sql`now()`),
-})
+}, (table) => ({
+  nomeIdx: index("nome_idx").on(table.nome)
+}))
 
 export const documentsTopics = pgTable('documentos_topics', {
   documentoId: uuid().notNull().references(() => documents.id),

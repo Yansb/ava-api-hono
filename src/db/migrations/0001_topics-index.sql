@@ -1,0 +1,1 @@
+CREATE INDEX IF NOT EXISTS "nome_idx" ON "topicos" USING btree ("nome");

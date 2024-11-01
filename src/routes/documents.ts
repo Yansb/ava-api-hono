@@ -1,11 +1,11 @@
 import { zValidator } from "@hono/zod-validator";
-import { confirmDocumentUploadRequest, documentUploadRequest, searchDocumentsRequest } from "../schemas/documents.js";
+import { confirmDocumentUploadRequest, documentUploadRequest, searchDocumentsRequest, SearchDocumentsResponseTopics } from "../schemas/documents.js";
 import { uploadFile } from "../providers/bucket/s3.js";
 import { searchTopics } from "../providers/AI/searchTopics.js";
 import { getFullPdf } from "../providers/pdf/pdfjs.js";
 import { modelTopics } from "../providers/AI/topicModeling.js";
 import { extractMetadata } from "../providers/AI/extractMetadata.js";
-import { eq, inArray } from "drizzle-orm";
+import { desc, eq, inArray, sql } from "drizzle-orm";
 import { createRouter } from "../providers/hono/createApp.js";
 import { courses, documents, documentsTopics, files, topics } from "../db/schema.js";
 
@@ -99,32 +99,54 @@ app.post("/documents/confirm-upload", zValidator('json', confirmDocumentUploadRe
 
 app.get("/documents/search", zValidator('query', searchDocumentsRequest), async (c) => {
   const { db } = c.var;
-  const { search } = c.req.valid("query");
-  const registeredTopics = await db.query.topics.findMany();
-
-  const topicsNames = await searchTopics(search, registeredTopics.map(t => t.nome));
-  const topicsIds = registeredTopics.filter(t => topicsNames.includes(t.nome)).map(t => t.id);
-
-  const documentsWithTopics = await db.query.documentsTopics.findMany({
-    where: inArray(documentsTopics.topicoId, topicsIds),
-    with: {
-      document: {
-        with: {
-          arquivos: true,
-          documentsToTopics: {
-            with: {
-              topic: true
-            }
-          }
-        }
+  let { search, topicsIds } = c.req.valid("query");
+  let topicsObject: SearchDocumentsResponseTopics = []
+  if(topicsIds){
+    topicsObject = await db.query.topics.findMany({
+      columns: {
+        id: true,
+        nome: true
       },
+      where: inArray(topics.id, topicsIds)
+    })
+  }else{
+    const registeredTopics = await db.query.topics.findMany();
+
+    const selectedTopics = await searchTopics(search, registeredTopics.map(t => t.nome));
+
+    topicsObject = registeredTopics.filter(t => selectedTopics.includes(t.nome));
+    topicsIds = topicsObject.map(t => t.id);
+  }
+
+  const documentsWithTopics = await db
+  .selectDistinct({documentoId: documentsTopics.documentoId})
+  .from(documentsTopics)
+  .where(inArray(documentsTopics.topicoId, topicsIds))
+  .execute()
+
+  const distinctDocuments = await db.query.documents.findMany({
+    where: inArray(documents.id, documentsWithTopics.map(d => d.documentoId)),
+    orderBy: desc(documents.createdAt),
+    with: {
+      arquivos: {
+        columns: {
+          id: true,
+          nome: true,
+          url: true
+        },
+      },
+      documentsToTopics: {
+        columns: {},
+        with: {
+          topic: true
+        }
+      }
     }
   });
 
-
   return c.json({
-    topics: topicsNames,
-    documents: documentsWithTopics,
+    topics: topicsObject,
+    documents: distinctDocuments,
   });
 });
 
