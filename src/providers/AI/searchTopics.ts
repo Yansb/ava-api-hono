@@ -11,6 +11,11 @@ const searchTopicsPrompt = ChatPromptTemplate.fromTemplate(
   - Não crie nem adicione tópicos novos. Só retorne os que estão na "Lista de Tópicos".
   - Se nenhum tópico da lista for relevante, devolva uma lista vazia sem inventar ou sugerir qualquer tópico.
 
+  **Instruções adicionais**:
+  - Retorne somente tópicos que sejam explicitamente referidos ou que possuam uma relação direta e clara com o "Texto".
+  - Evite tópicos amplos ou genéricos, a menos que estejam diretamente aplicáveis ao contexto específico apresentado.
+
+
   Lista de Tópicos:
   {topics}\n
 
